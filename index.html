@@ -71,10 +71,29 @@ header.top{display:flex;align-items:center;gap:12px}header.top>div{flex:1}#lg{he
 .sg{display:flex;gap:20px;margin-top:50px}.sg div{flex:1;border-top:1px solid #111;text-align:center;padding-top:4px}
 .ft{margin-top:24px;border-top:1px solid #999;padding-top:6px;text-align:center;color:#666;font-size:10px}}
 #md{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;justify-content:center;padding:16px;overflow:auto;z-index:20}#md .card{max-width:680px;width:100%;height:max-content;margin-top:24px}
+:root{--c-dash:#0b4f9c;--c-sup:#0f766e;--c-prc:#b45309;--c-rfq:#7c3aed;--c-po:#15803d;--c-acc:#be123c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-dash:#6aa9f0;--c-sup:#4fd1c5;--c-prc:#f6ad55;--c-rfq:#b794f4;--c-po:#68d391;--c-acc:#fc8181}}
+:root[data-theme="dark"]{--c-dash:#6aa9f0;--c-sup:#4fd1c5;--c-prc:#f6ad55;--c-rfq:#b794f4;--c-po:#68d391;--c-acc:#fc8181}
+:root[data-v]{--hl:color-mix(in srgb,var(--accent) 13%,var(--paper))}
+:root[data-v="dash"]{--accent:var(--c-dash)}
+:root[data-v="sup"]{--accent:var(--c-sup)}
+:root[data-v="prc"]{--accent:var(--c-prc)}
+:root[data-v="rfq"]{--accent:var(--c-rfq)}
+:root[data-v="po"]{--accent:var(--c-po)}
+:root[data-v="acc"]{--accent:var(--c-acc)}
+nav a{border-bottom:3px solid var(--c,var(--line))}
+nav a[href="#dash"]{--c:var(--c-dash)}
+nav a[href="#sup"]{--c:var(--c-sup)}
+nav a[href="#prc"]{--c:var(--c-prc)}
+nav a[href="#rfq"]{--c:var(--c-rfq)}
+nav a[href="#po"]{--c:var(--c-po)}
+nav a[href="#acc"]{--c:var(--c-acc)}
+nav a[aria-current]{background:var(--c);border-color:var(--c);color:var(--on)}
+#th{white-space:nowrap}
 </style>
 </head>
 <body>
-<header class="top"><img id="lg" alt="شعار الهنا اليكتريك"><div><h1>إدارة المشتريات – الهنا اليكتريك</h1><p>الموردين · الأسعار · طلبات العروض · أوامر الشراء · حسابات الموردين</p></div><button class="btn alt" id="lo" hidden>تسجيل الخروج</button></header>
+<header class="top"><img id="lg" alt="شعار الهنا اليكتريك"><div><h1>إدارة المشتريات – الهنا اليكتريك</h1><p>الموردين · الأسعار · طلبات العروض · أوامر الشراء · حسابات الموردين</p></div><button class="btn alt" id="th" aria-label="تبديل الوضع الليلي والنهاري">🌙 ليلي</button><button class="btn alt" id="lo" hidden>تسجيل الخروج</button></header>
 <nav id="nv" aria-label="الأقسام"></nav>
 <main id="app"><p class="note">جاري تحميل البيانات…</p></main>
 <datalist id="dl"></datalist>
@@ -170,7 +189,7 @@ function draw(){
  const a=document.activeElement;
  if(a&&$('#app').contains(a)&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)){pend=true;return}
  pend=false;V=VW[location.hash.slice(1)]?location.hash.slice(1):'dash';
- $('#app').innerHTML=VW[V]();
+ document.documentElement.dataset.v=V;$('#app').innerHTML=VW[V]();
  $$('#nv a').forEach(x=>x.toggleAttribute('aria-current',x.getAttribute('href')=='#'+V));
  $('#dl').innerHTML=[...new Set(S.prc.map(p=>p.item))].map(i=>`<option value="${E(i)}">`).join('');
 }
@@ -264,6 +283,10 @@ function showLogin(){$('#lo').hidden=true;$('#app').innerHTML=`<form class="card
   db=fs;$('#lo').hidden=false;$('#app').innerHTML='<p class="note">جاري تحميل البيانات…</p>';
   Object.keys(S).forEach(c=>subs.push(fs.collection(c).onSnapshot(s=>{S[c]=s.docs.map(d=>({id:d.id,...d.data()}));draw()},()=>toast('تعذر تحميل بعض البيانات'))));draw()})
 })();
+(function(){const R=document.documentElement,K='elhana-theme',b=$('#th');let m=null;try{m=localStorage.getItem(K)}catch(e){}
+ if(m)R.dataset.theme=m;
+ const cur=()=>R.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),lb=()=>b.textContent=cur()=='dark'?'☀️ نهاري':'🌙 ليلي';
+ lb();b.onclick=()=>{const t=cur()=='dark'?'light':'dark';R.dataset.theme=t;try{localStorage.setItem(K,t)}catch(e){}lb()}})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
